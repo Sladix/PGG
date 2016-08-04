@@ -1,16 +1,20 @@
 /*global PIXI*/
 /*global Tile*/
+/*global Camera*/
 /*global MapGen*/
 var BASE_URL = "https://pgg-sladix.c9users.io/";
 
 //Create the renderer
-var renderer = PIXI.autoDetectRenderer(1008, 784,{backgroundColor : 0xFFFFFF});
+var rendererDimensions = {
+    width:1008,
+    height:784
+}
+var renderer = PIXI.autoDetectRenderer(rendererDimensions.width, rendererDimensions.height,{backgroundColor : 0xFFFFFF});
 //Add the canvas to the HTML document
 document.body.appendChild(renderer.view);
 
 // Create a container object called the `stage`
 var stage = new PIXI.Container();
-var mapGen = new MapGen();
 // Create a ressource holder
 var resourcesManager = {
     "tiles":[]
@@ -23,14 +27,13 @@ function onProgressCallback(data,obj){
 function animate() {
 	
     requestAnimationFrame( animate );
-    // render the stage   
-   	
+    // render the stage
     renderer.render(stage);
+    // render the tweens
+    PIXI.tweenManager.update();
 }
 
-function initGame(){ 
-  mapGen.generate();
-}
+
 PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
 PIXI.loader.add('tiles', BASE_URL+'img/roguelikeCity_magenta.png')
           .on('progress', onProgressCallback)
@@ -107,6 +110,27 @@ PIXI.loader.add('tiles', BASE_URL+'img/roguelikeCity_magenta.png')
               resourcesManager["tiles"][Tile.TYPE_DOOR] = new PIXI.Texture(resources.tiles.texture,new PIXI.Rectangle(102,17, 16, 16));
               initGame();
           });
+var mapGen;
+var camera;
+var world = new PIXI.Container();
+function initGame(){
+    
+    mapGen = new MapGen();
+    // on génère la map
+    world.addChild(mapGen.generate());
+    
+    // On Crée le joueur et on le place
+    
+    // On instancie la caméra
+    camera = new Camera(world,rendererDimensions);
+    camera.center([200,200]);
+    
+    stage.addChild(world);
+}
+
+function resetMap(){
+    mapGen.generate();
+}
 
 // Tell the `renderer` to `render` the `stage`
 animate();

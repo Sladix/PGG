@@ -52,13 +52,15 @@ var MapGen = (function () {
         // On reconnecte quelques chemins
         this.prettyCorridors();
         
+        // On crée des batiments pour le décor ?
+        
         // On peuple les pièces
         
         //On affiche les tiles
         this.displayTiles();
         
         // On ajoute la carte à la stage (elle sera cachée)
-        stage.addChild(this.tilesContainer);
+        return this.tilesContainer;
         
     };
     MapGen.prototype.displayTiles = function(){
