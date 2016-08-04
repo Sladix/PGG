@@ -1,6 +1,9 @@
-# PGG
+# PGG :video_game:
 JS Procedurally Generated Game
-This project aims to create a procedurally generated game. The goal will probably be to explore and kill shit (which, I don't know yet).
+This project aims to create a procedurally generated game. The goal will probably be to explore and :gun: shit (which, I don't know yet).
+
+Here is a screen of what it currenlty produce :<br/>
+<img src="http://i.imgur.com/4SyHhBi.png" width="300" alt="a generated mp with room tiles instead of walls">
 
 ## Roadmap
 - [x] Room placement
