@@ -31,7 +31,7 @@ function animate() {
 function initGame(){ 
   mapGen.generate();
 }
-
+PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
 PIXI.loader.add('tiles', BASE_URL+'img/roguelikeCity_magenta.png')
           .on('progress', onProgressCallback)
           .load(function (loader, resources) {

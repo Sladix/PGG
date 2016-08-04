@@ -1,5 +1,4 @@
 /*global PIXI*/
-/*global Bump*/
 /*global Utils*/
 /*global Room*/
 /*global Tile*/
@@ -24,7 +23,7 @@ var MapGen = (function () {
             this.tilesContainer.destroy();
         }
         this.tilesContainer = new PIXI.Container();
-    }
+    };
     
     MapGen.prototype.generate = function(){
         // On vide le conteneur
@@ -68,11 +67,11 @@ var MapGen = (function () {
                 this._tiles[x][y].display();
             }
         }
-    }
+    };
     MapGen.prototype.display = function()
     {
         this.tilesContainer.visible = true;   
-    }    
+    };
     MapGen.prototype.carveCorridors = function(){
         // On cherche la première cellule vide 
         /*---------------------------------------*/
@@ -82,7 +81,7 @@ var MapGen = (function () {
             this.carve([x,y]);
           }
         }
-    }
+    };
     
     MapGen.prototype.createConnections = function(){
         // pour chaque salle, on crée une porte
@@ -115,42 +114,32 @@ var MapGen = (function () {
             }
             
             // On ajoute les portes entre les salles
-            var tries = 2;
-            var room2room = 0;
-            while(room2room < Room.MIN_R2R_DOORS)
+                // On évite de partir dans une boucle infini parce que c'est pas cool;
+                    
+            var t = Utils.r.pick(tiles);
+            var d = t.getOpenable();
+            
+            if(d)
             {
-                // On évite de partir dans une boucle infini parce que c'est pas cool
-                if(tries <= 0)
-                    break;
-                    
-                var t = Utils.r.pick(tiles);
-                var d = t.getOpenable();
-                
-                if(d)
-                {
-                    var nbr = 0;
-                    var neighbors = d.getNeighborsTiles();
-                    for(var n in neighbors){
-                        if(neighbors[n].type == Tile.TYPE_GROUND)
-                            nbr++;
-                    }
-                    
-                    if( nbr == 2 )
-                    {
-                        d.changeType(Tile.TYPE_DOOR);
-                        this.roomRefs[r].doors.push(d);
-                        room2room++;
-                    }
+                var nbr = 0;
+                var neighbors = d.getNeighborsTiles();
+                for(var n in neighbors){
+                    if(neighbors[n].type == Tile.TYPE_GROUND)
+                        nbr++;
                 }
-                tries--;
                 
+                if( nbr == 2 )
+                {
+                    d.changeType(Tile.TYPE_DOOR);
+                    this.roomRefs[r].doors.push(d);
+                }
             }
             
         
             
             //TODO ajouter des connexions entre les salles parfois
         }
-    }  
+    };
     
     MapGen.prototype.removeDeadEnds = function(){
         // supprime une bonne partie des culs de sac
@@ -209,7 +198,7 @@ var MapGen = (function () {
                 }
             }
         }
-    }
+    };
     
     
     MapGen.prototype._addRooms = function () {
@@ -241,13 +230,13 @@ var MapGen = (function () {
     };
     MapGen.prototype.addTile = function(x,y,_tile){
         this._tiles[x][y] = _tile;
-    }
+    };
 
     MapGen.prototype.checkNeighborsEmpty = function(pos){
         // 0 == vertical
         // 1 == horizontal
         if(pos[1] >= this.maxYm -1 || pos[0] >= this.maxXm -1 || pos[0] <= 0 || pos[1] <= 0)
-            return false
+            return false;
         
         var empties = 0;
         // Get all 4 neighbors
@@ -286,7 +275,7 @@ var MapGen = (function () {
             empties += (this._tiles[pos[0]+1][pos[1]+1].type == Tile.TYPE_GROUND)?-3:0;
             
         return (empties>=2)?true:false;
-    }
+    };
     
     // On crée le labyrinthe
     MapGen.prototype.carve = function(position){
@@ -334,7 +323,7 @@ var MapGen = (function () {
             }
             if(possibleDirections.length > 0){
                 var move = Utils.getIntRand(0, possibleDirections.length);
-                var posX = pos[0]
+                var posX = pos[0];
                 var posY = pos[1];
                 var tile1;
                 var tile2;
