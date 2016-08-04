@@ -25,3 +25,7 @@ Utils.intersects = function(rect1,rect2) {
     if (y2 > h1 || y1 > h2) return false;
   return true;
 }
+
+Utils.distanceTo = function(s1,s2){
+    return Math.sqrt( (s1.x-s2.x)*(s1.x-s2.x) + (s1.y-s2.y)*(s1.y-s2.y) );
+}

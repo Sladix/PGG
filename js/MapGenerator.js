@@ -4,12 +4,12 @@
 /*global Tile*/
 /*global resourcesManager*/
 /*global renderer*/
-/*global stage*/
+/*global world*/
 var MapGen = (function () {
-    function MapGen() {
+    function MapGen(_width,_height) {
         this.tilesContainer = new PIXI.Container();
-        this.maxXm = Math.floor(renderer.width / MapGen.TILE_SIZE);
-        this.maxYm = Math.floor(renderer.height / MapGen.TILE_SIZE);
+        this.maxXm = _width
+        this.maxYm = _height;
     }
     
     MapGen.prototype.reset = function(){
@@ -19,15 +19,10 @@ var MapGen = (function () {
         this.pathRegions = [];
         if(this.tilesContainer.children.length > 0)
         {
-            stage.removeChild(this.tilesContainer);
+            world.removeChild(this.tilesContainer);
             this.tilesContainer.destroy();
         }
         this.tilesContainer = new PIXI.Container();
-    };
-    
-    MapGen.prototype.generate = function(){
-        // On vide le conteneur
-        this.reset();
         
         // On rempli les tiles avec des murs
         for(var x = 0; x < this.maxXm ;x++){
@@ -37,6 +32,12 @@ var MapGen = (function () {
                 this._tiles[x][y] = tile;
             }
         }
+    };
+    
+    MapGen.prototype.generate = function(){
+        // On vide le conteneur
+        this.reset();
+        
         // On ajoute les pièces
         this._addRooms();
         
@@ -60,9 +61,23 @@ var MapGen = (function () {
         this.displayTiles();
         
         // On ajoute la carte à la stage (elle sera cachée)
-        return this.tilesContainer;
+        world.addChild(this.tilesContainer);
         
     };
+    
+    MapGen.prototype.findPlayerPosition = function(){
+        var position = [2,2];
+        for(var r in this.roomRefs){
+            if(this.roomRefs[r].width <= MapGen.MIN_ROOM_WIDTH+1 && this.roomRefs[r].height <= MapGen.MIN_ROOM_HEIGHT)
+            {
+                var t = Utils.r.pick(this.roomRefs[r].roomTiles);
+                return [t.graphics.position.x,t.graphics.position.y];
+            }
+        }
+        
+        return position;
+    }
+    
     MapGen.prototype.displayTiles = function(){
         for(var x in this._tiles){
             for(var y in this._tiles[x]){
@@ -70,10 +85,12 @@ var MapGen = (function () {
             }
         }
     };
+    
     MapGen.prototype.display = function()
     {
         this.tilesContainer.visible = true;   
     };
+    
     MapGen.prototype.carveCorridors = function(){
         // On cherche la première cellule vide 
         /*---------------------------------------*/

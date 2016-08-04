@@ -1564,4 +1564,3 @@ var Bump = (function () {
 
   return Bump;
 })();
-//# sourceMappingURL=bump.js.map

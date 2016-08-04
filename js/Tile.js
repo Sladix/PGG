@@ -13,8 +13,8 @@ var Tile = (function () {
     
     Tile.prototype.display = function(){
         this.graphics = new PIXI.Sprite();
-        this.graphics.x = this.position.x * MapGen.TILE_SIZE;
-        this.graphics.y = this.position.y * MapGen.TILE_SIZE;
+        this.graphics.position.x = this.position.x * MapGen.TILE_SIZE;
+        this.graphics.position.y = this.position.y * MapGen.TILE_SIZE;
         if(this.type == Tile.TYPE_FLOOR || this.type == Tile.TYPE_WALL){
             // Trouver quelle tile on affiche pour ce bout de mur
             var index = this.getTileIndex();
@@ -209,19 +209,19 @@ var Tile = (function () {
     Tile.prototype.getDiagonalNeighbors = function(){
         var tiles = {};
         //SW
-        if(this.position.x-1 > 0 && this.position.y-1 > 0)
+        if(this.position.x-1 >= 0 && this.position.y-1 >= 0)
             tiles['SW'] = mapGen._tiles[this.position.x-1][this.position.y-1];
         
         //NW
-        if(this.position.x-1 > 0 && this.position.y+1 < mapGen.maxYm -1)
+        if(this.position.x-1 >= 0 && this.position.y+1 <= mapGen.maxYm -1)
             tiles['NW'] = mapGen._tiles[this.position.x-1][this.position.y+1];
         
         //SE
-        if(this.position.x+1 < mapGen.maxXm -1 && this.position.y-1 > 0)
+        if(this.position.x+1 <= mapGen.maxXm -1 && this.position.y-1 > 0)
             tiles['SE'] = mapGen._tiles[this.position.x+1][this.position.y-1];    
         
         //NE  
-        if(this.position.x+1 < mapGen.maxXm -1 && this.position.y+1 < mapGen.maxYm -1)
+        if(this.position.x+1 <= mapGen.maxXm -1 && this.position.y+1 <= mapGen.maxYm -1)
             tiles['NE'] = mapGen._tiles[this.position.x+1][this.position.y+1];
             
         return tiles;

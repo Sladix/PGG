@@ -31,6 +31,9 @@ var Room = (function () {
                 if( j == 0 || i == 0 || i == this.width - 1 || j == this.height -1 )
                 {
                   this.borderTiles.push(mapGen._tiles[this.position.x + i][this.position.y + j]);
+                }else
+                {
+                  this.roomTiles.push(mapGen._tiles[this.position.x + i][this.position.y + j]);
                 }
                   
                 this.roomTiles.push(mapGen._tiles[this.position.x + i][this.position.y + j]);
