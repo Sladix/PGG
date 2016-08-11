@@ -1,3 +1,6 @@
+/*global characterMaterial*/
+/*global DEBUG_ACTIVE*/
+/*global camera*/
 var Key = {
   _pressed: {},
 
@@ -26,6 +29,7 @@ var PlayerControls = (function () {
     function PlayerControls(_player) {
         this.enabled = false;
         this.player = _player;
+        this.player.body.material = characterMaterial;
     }
     
     PlayerControls.prototype.enable = function(){
@@ -39,14 +43,12 @@ var PlayerControls = (function () {
         
         if(Key.isDown(Key.UP))
             this.player.move('N');
-        else if(Key.isDown(Key.DOWN))
+        if(Key.isDown(Key.DOWN))
             this.player.move('S');
-        else if(Key.isDown(Key.LEFT))
+        if(Key.isDown(Key.LEFT))
             this.player.move('W');
-        else if(Key.isDown(Key.RIGHT))
+        if(Key.isDown(Key.RIGHT))
             this.player.move('E');
-            
-        // TODO add diamonds movements
         
     };
     

@@ -1,7 +1,11 @@
 /*global PIXI*/
 /*global MapGen*/
 /*global mapGen*/
+/*global p2*/
 /*global resourcesManager*/
+/*global groundMaterial*/
+
+/*global debug*/
 
 var Tile = (function () {
     function Tile(_type,_x,_y) {
@@ -9,6 +13,7 @@ var Tile = (function () {
         this.region = 0;
         this.position = {x:_x,y:_y};
         this.connectedTo = null;
+        this.debug = null;
     }
     
     Tile.prototype.display = function(){
@@ -19,6 +24,30 @@ var Tile = (function () {
             // Trouver quelle tile on affiche pour ce bout de mur
             var index = this.getTileIndex();
             this.graphics.texture = resourcesManager["tiles"][this.type][index];
+            if(index != 'C' && this.type == Tile.TYPE_WALL)
+            {
+                var tile = new p2.Box({
+                    width:MapGen.TILE_SIZE,
+                    height:MapGen.TILE_SIZE,
+                });
+                this.body = new p2.Body({
+                    mass: 0,
+                    position : [this.graphics.position.x,this.graphics.position.y]
+                });
+                this.body.type = p2.Body.KINEMATIC;
+                this.body.addShape(tile);
+                this.body.material = groundMaterial;
+                this.debug = new PIXI.Graphics();
+                // set the line style to have a width of 5 and set the color to red
+                this.debug.lineStyle(1, 0x0000FF);
+                
+                // draw a rectangle
+                this.debug.drawRect(this.body.position[0], this.body.position[1], this.body.shapes[0].width, this.body.shapes[0].height);
+                
+                debug.addChild(this.debug);
+                
+                mapGen.collidableTiles.push(this);
+            }
         }else{
             this.graphics.texture = resourcesManager["tiles"][this.type];
         }
@@ -227,8 +256,16 @@ var Tile = (function () {
         return tiles;
     }
     
-    Tile.prototype.getTileAt = function(pos){
-        return mapGen._tiles[this.position.x][this.position.y];
+    Tile.getTileAt = function(pos){
+        var position = {
+          x:0,
+          y:0
+        };
+        
+        position.x = Math.floor(pos.x/MapGen.TILE_SIZE);
+        position.y = Math.floor(pos.y/MapGen.TILE_SIZE);
+        
+        return mapGen._tiles[position.x][position.y];
     }
     Tile.ROOM_REGION = -2;
     Tile.TYPE_WALL = 1;

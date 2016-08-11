@@ -5,7 +5,8 @@
 /*global PlayerControls*/
 /*global MapGen*/
 /*global TWEEN*/
-/*global Bump*/
+/*global p2*/
+/*global rStats*/
 var BASE_URL = "https://pgg-sladix.c9users.io/";
 //Degueu
 var pc = null;
@@ -18,7 +19,6 @@ var renderer = PIXI.autoDetectRenderer(rendererDimensions.width, rendererDimensi
 //Add the canvas to the HTML document
 document.body.appendChild(renderer.view);
 
-var bump = new Bump(PIXI);
 // Create a container object called the `stage`
 var stage = new PIXI.Container();
 // Create a ressource holder
@@ -114,22 +114,80 @@ PIXI.loader.add('tiles', BASE_URL+'img/roguelikeCity_magenta.png')
 var mapGen;
 var camera;
 var world = new PIXI.Container();
+var debug = new PIXI.Container();
+var player;
+var p2world;
+var groundMaterial = new p2.Material(),
+enemyMaterial = new p2.Material(),
+characterMaterial = new p2.Material();
+var rS = new rStats();
+
+var DEBUG_ACTIVE = false;
+
 function initGame(){
     
     mapGen = new MapGen(Math.floor(renderer.width / MapGen.TILE_SIZE),Math.floor(renderer.height / MapGen.TILE_SIZE));
     // on génère la map
     mapGen.generate();
     
+    // On initialise le p2 monde
+    p2world = new p2.World({
+        gravity:[0, 0]
+    });
+    p2world.defaultContactMaterial.friction = 0;
+    
     // On Crée le joueur et on le place
-    var player = new Player();
-    player.spawn(mapGen.findPlayerPosition());
+    var spawnLocation = mapGen.findPlayerPosition();
+    player = new Player(spawnLocation);
+    p2world.addBody(player.body);
+    world.addChild(player);
+    
+    var dummy = new Player([spawnLocation[0]+1,spawnLocation[1]]);
+    world.addChild(dummy);
+    p2world.addBody(dummy.body);
+    
+    for(var m in mapGen.collidableTiles){
+        p2world.addBody(mapGen.collidableTiles[m].body);
+    }
+    
+    var charGroundCM = new p2.ContactMaterial(characterMaterial, groundMaterial,{
+      friction : 0, // Between boxes and ground
+    });
+    p2world.addContactMaterial(charGroundCM);
+    
+    var charCharCM = new p2.ContactMaterial(characterMaterial, enemyMaterial,{
+      friction : 0,
+    });
+    p2world.addContactMaterial(charCharCM);
     
     
-    pc = new PlayerControls(player);
-    pc.enable();
     // On instancie la caméra et on se place sur le joueur
     camera = new Camera(world,rendererDimensions);
     camera.follow(player);
+    
+    // Contrôles du joueur
+    pc = new PlayerControls(player);
+    pc.enable();    
+    
+    p2world.on('postStep', function(){
+        // Mouse position update
+        // Enculé de calcul de merde
+        var x = (renderer.plugins.interaction.mouse.global.x - camera.world.position.x) / camera.scale;
+        var y = (renderer.plugins.interaction.mouse.global.y - camera.world.position.y) / camera.scale;
+        Mouse.setPosition({x:x,y:y});
+        
+        // Player controls update
+        pc.update();
+        dummy.update();
+        
+        // Player update
+        player.update();
+    });
+    
+    //On ajoute je debug
+    if(DEBUG_ACTIVE)
+        world.addChild(debug);
+        
     // On rend le monde visible
     stage.addChild(world);
     
@@ -142,16 +200,33 @@ function initGame(){
 function resetMap(){
     mapGen.generate();
 }
-
+var fixedTimeStep = 1 / 60; // seconds
+var maxSubSteps = 10; // Max sub steps to catch up with the wall clock
+var lastTime;
 function animate(time) {
-	
-    requestAnimationFrame( animate );
+    rS( 'frame' ).start();
+    rS( 'FPS' ).frame();
+    var deltaTime = lastTime ? (time - lastTime) / 1000 : 0;
+
+    rS( 'physics' ).start();  
+    //Physics engine
+    p2world.step(fixedTimeStep, deltaTime, maxSubSteps);
+    rS( 'physics' ).end();
+
+    rS( 'render' ).start();
     // render the stage
     renderer.render(stage);
-    // Player controls update
-    pc.update();
+    rS( 'render' ).end();
+    
     // Camera update
     camera.update();
+    
     // render the tweens
     TWEEN.update(time);
+    
+    //Stats
+    rS( 'frame' ).end();
+    rS().update();
+    
+    requestAnimationFrame( animate );
 }

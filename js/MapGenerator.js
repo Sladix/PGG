@@ -17,6 +17,7 @@ var MapGen = (function () {
         this._tiles = [];
         this.regionIndex = 0;
         this.pathRegions = [];
+        this.collidableTiles = [];
         if(this.tilesContainer.children.length > 0)
         {
             world.removeChild(this.tilesContainer);
@@ -61,20 +62,25 @@ var MapGen = (function () {
         this.displayTiles();
         
         // On ajoute la carte à la stage (elle sera cachée)
+        this.tilesContainer.cacheAsBitmap = true;
         world.addChild(this.tilesContainer);
         
     };
     
     MapGen.prototype.findPlayerPosition = function(){
-        var position = [2,2];
+        var position = null;
         for(var r in this.roomRefs){
-            if(this.roomRefs[r].width <= MapGen.MIN_ROOM_WIDTH+1 && this.roomRefs[r].height <= MapGen.MIN_ROOM_HEIGHT)
+            if(this.roomRefs[r].width <= MapGen.MIN_ROOM_WIDTH+2 && this.roomRefs[r].height <= MapGen.MIN_ROOM_HEIGHT+2)
             {
                 var t = Utils.r.pick(this.roomRefs[r].roomTiles);
-                return [t.graphics.position.x,t.graphics.position.y];
+                return [t.position.x,t.position.y];
             }
         }
-        
+        if(position == null)
+        {
+            var t = Utils.r.pick(this.pathRegions[1]);
+            return [t.position.x,t.position.y];
+        }
         return position;
     }
     
